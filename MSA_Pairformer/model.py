@@ -79,9 +79,15 @@ class CoreModule(Module):
                 dim_pairwise = dim_pairwise,
                 **pwa_kwargs
             )
-            msa_pre_ln = partial(PreLayerNorm, dim = dim_msa)
+            # msa_pre_ln = partial(PreLayerNorm, dim = dim_msa)
+            # curr_module_list.append(msa_pair_weighted_avg)
+            # curr_module_list.append(msa_pre_ln(Transition(dim = dim_msa)))
+            # ...
+            # msa_pre_ln = partial(PreLayerNorm, dim = dim_msa) # 이 라인을 삭제합니다.
             curr_module_list.append(msa_pair_weighted_avg)
-            curr_module_list.append(msa_pre_ln(Transition(dim = dim_msa)))
+            # partial을 사용하지 않고 PreLayerNorm를 직접 호출합니다.
+            curr_module_list.append(PreLayerNorm(Transition(dim = dim_msa), dim = dim_msa))
+            # ...
 
             # Outer product
             if auto_lambda_init and ('differential' in opm_kwargs['outer_product_flavor']):
@@ -117,8 +123,9 @@ class CoreModule(Module):
             **pwa_kwargs
         )
         # Transition module
-        msa_pre_ln = partial(PreLayerNorm, dim = dim_msa)
-        self.final_msa_transition = msa_pre_ln(Transition(dim = dim_msa))
+        # msa_pre_ln = partial(PreLayerNorm, dim = dim_msa)
+        # self.final_msa_transition = msa_pre_ln(Transition(dim = dim_msa))
+        self.final_msa_transition = PreLayerNorm(Transition(dim = dim_msa), dim = dim_msa)
 
         # Other parameters
         self.register_buffer('zero', torch.tensor(0.), persistent = False)

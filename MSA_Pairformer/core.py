@@ -15,7 +15,15 @@ from .custom_typing import (
 )
 
 # Linear layer without bias term (simple linear transformation)
-LinearNoBias = partial(Linear, bias = False)
+# LinearNoBias = partial(Linear, bias = False)
+class LinearNoBias(torch.nn.Linear):
+    """
+    torch.nn.Linear와 동일하지만, bias를 항상 False로 초기화합니다.
+    peft가 partial을 스캔하지 못하는 문제를 해결하기 위해 클래스로 정의합니다.
+    """
+    def __init__(self, in_features, out_features):
+        # bias=False를 하드코딩합니다.
+        super().__init__(in_features, out_features, bias=False)
 
 class RMSNorm(Module):
     def __init__(self, dim: int, eps: float = 1e-6):

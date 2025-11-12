@@ -265,7 +265,7 @@ class PairwiseBlock(Module):
         super().__init__()
 
         # LayerNorm inputs to layers
-        pre_ln = partial(PreLayerNorm, dim = dim_pairwise)
+        # pre_ln = partial(PreLayerNorm, dim = dim_pairwise)
 
         # Triangle multiplication parameters
         tri_mult_kwargs = dict(
@@ -281,12 +281,13 @@ class PairwiseBlock(Module):
         self.use_triangle_updates = use_triangle_updates
         self.use_pair_updates = use_pair_updates
         if self.use_triangle_updates:
-            self.tri_mult_outgoing = pre_ln(TriangleMultiplication(mix = "outgoing", dropout = dropout_row_prob, dropout_type = "row", **tri_mult_kwargs))
-            self.tri_mult_incoming = pre_ln(TriangleMultiplication(mix = "incoming", dropout = dropout_row_prob, dropout_type = "row", **tri_mult_kwargs))
+            self.tri_mult_outgoing = PreLayerNorm(TriangleMultiplication(mix = "outgoing", dropout = dropout_row_prob, dropout_type = "row", **tri_mult_kwargs), dim = dim_pairwise)
+            self.tri_mult_incoming = PreLayerNorm(TriangleMultiplication(mix = "incoming", dropout = dropout_row_prob, dropout_type = "row", **tri_mult_kwargs), dim = dim_pairwise)
         if self.use_pair_updates:
-            self.pair_mult_first = pre_ln(PairMultiplication(dropout = dropout_row_prob, dropout_type = "row", **pair_mult_kwargs))
-            self.pair_mult_second = pre_ln(PairMultiplication(dropout = dropout_col_prob, dropout_type = "row", **pair_mult_kwargs))
-        self.pairwise_transition = pre_ln(Transition(dim = dim_pairwise))
+            self.pair_mult_first = PreLayerNorm(PairMultiplication(dropout = dropout_row_prob, dropout_type = "row", **pair_mult_kwargs), dim = dim_pairwise)
+            self.pair_mult_second = PreLayerNorm(PairMultiplication(dropout = dropout_col_prob, dropout_type = "row", **pair_mult_kwargs), dim = dim_pairwise)
+        # 여기도 마찬가지로 수정합니다.
+        self.pairwise_transition = PreLayerNorm(Transition(dim = dim_pairwise), dim = dim_pairwise)
 
     @typecheck
     def forward(

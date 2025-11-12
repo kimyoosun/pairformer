@@ -39,3 +39,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/mmseqs-linux-gpu.tar.gz
 mmseqs/bin/mmseqs
+
+X5L4P3.a3m
+msa.tar
+msa_BFVD/
